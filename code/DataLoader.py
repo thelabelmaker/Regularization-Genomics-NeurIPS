@@ -4,8 +4,7 @@ import os
 
 def load_data():
     """# Load Synthetic regulatory code data (Task 3 in Koo & Ploenzke, NMI, 2021)"""
-    data_path = '../data' 
-    filepath = '../data/synthetic_code_dataset.h5'
+    filepath = './data/synthetic_code_dataset.h5'
     with h5py.File(filepath, 'r') as dataset:
         x_train = np.array(dataset['X_train']).astype(np.float32)
         y_train = np.array(dataset['Y_train']).astype(np.float32)
