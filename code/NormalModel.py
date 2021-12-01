@@ -1,13 +1,9 @@
-import enum
 import tensorflow as tf
 from tensorflow import keras
-import tfomics
 import tensorflow_probability as tfp
 from tensorflow_probability import distributions as tfd
-from tensorflow.keras import layers, Model, Input
 import numpy as np
-import sys
-from models import *
+from models import deepnet
 from utils import *
 from MixupMode import MixupMode
 
@@ -22,32 +18,19 @@ class NormalModel(keras.Model):
         if weights is None:
             if model == 'deepnet':
                 self.model = deepnet(input_shape = (L, A), l2=False, num_labels = 1, activation='relu', bn=bn, dropout=d, units=units)
-            elif model == 'shallownet_4':
-                self.model = shallownet_4(input_shape = (L, A), l2=False, num_labels = 1, activation='relu', bn=bn, dropout=d, units=units)
-            else:
-                self.model = shallownet_25(input_shape = (L, A), l2=False, num_labels = 1, activation='relu', bn=bn, dropout=d, units=units)
         else:
             self.model = weights
             
         self.ks = []
         self.mixup_mode = mixup_mode
-        print(self.mixup_mode)
         self.training = training
-        print('Training: '+str(self.training))
+
     def call(self, inputs, training=None):
         return self.model(inputs, training=training)
 
         
     def train_step(self, data):
         x, y = data
-        if self.mixup_mode == MixupMode.GAUSSIAN_NOISE:
-            x = x + tf.random.normal(tf.shape(x))
-
-        if self.mixup_mode == MixupMode.RC:
-            x_rc = x[:,:,::-1]
-            x_rc = x_rc[:,::-1,:]
-            x = tf.concat([x,x_rc], axis=0)
-            y = tf.concat([y, y], axis=0)
 
         with tf.GradientTape() as tape:
             y_pred = x
